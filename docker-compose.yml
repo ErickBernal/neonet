@@ -1,0 +1,34 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=TuPassword123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  crud-api:
+    build: ./crud-api
+    container_name: crud-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Server=sqlserver,1433;Database=ProductosDb;User Id=sa;Password=TuPassword123!;TrustServerCertificate=True;
+    depends_on:
+      - sqlserver
+
+  frontend:
+    build: ./vue-ventas
+    container_name: vue-ventas
+    ports:
+      - "8081:80"
+    depends_on:
+      - crud-api
+
+volumes:
+  sqlserver_data:
